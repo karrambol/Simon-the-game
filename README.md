@@ -1,4 +1,4 @@
-# simon-the-game
+# Simon The Game
 
 Deployed on [GitHub Pages](https://karrambol.github.io/Simon-the-game-GHP/)
 
