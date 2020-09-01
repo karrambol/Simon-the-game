@@ -9,8 +9,9 @@
       />
       <div class="menu">
         <h2>Round: {{ currentRound }}</h2>
-        <button class="start">START</button>
-        <p v-if="lostRound">Sorry, you lost after {{ lostRound }} rounds</p>
+        <button class="start" v-on:click="handleStart">START</button>
+        <p v-if="lostRound">Sorry, you lost</p>
+        <p v-if="lostRound">after {{ lostRound }} rounds</p>
         <h2>Game Mode:</h2>
         <ul>
           <template v-for="(option, i) in modeOptions">
@@ -18,7 +19,7 @@
               <input
                 v-bind:key="i"
                 type="radio"
-                name="options"
+                name="mode"
                 v-bind:id="option.name"
                 v-bind:value="i"
                 v-model="currentGameMode"
@@ -34,7 +35,7 @@
               <input
                 v-bind:key="i"
                 type="radio"
-                name="options"
+                name="difficulty"
                 v-bind:id="option.name"
                 v-bind:value="i"
                 v-model="currentDifficulty"
@@ -61,6 +62,7 @@ export default {
       lostRound: 0,
       currentRound: 0,
       inputSequence: [],
+      requiredSequence: [],
       gameRun: true,
       wheelActive: true,
       highlightedSector: null,
@@ -75,31 +77,88 @@ export default {
         { delay: 1000, name: 'Normal' },
         { delay: 400, name: 'Hard' }
       ],
-      currentDifficulty: 0
+      currentDifficulty: 0,
+      checkFunction: () => false
     }
   },
+
   computed: {
     gameMode () {
       return this.modeOptions[this.currentGameMode]
     },
+
     difficulty () {
       return this.difficultyOptions[this.currentDifficulty]
     }
   },
+
   methods: {
     handleStart () {
       this.currentRound = 0
       this.lostRound = 0
+      this.requiredSequence = []
+      this.gameRun = true
+      this.startRound()
     },
-    handleWheelClick (number) {
-      if (this.gameRun) {
-        this.inputSequence.push(number)
+
+    startRound () {
+      this.currentRound++
+      this.requiredSequence.push(this.createRandomNumber())
+      setTimeout(this.playSequence, 500)
+
+      this.checkFunction = this.createCheckFunction()
+    },
+
+    playSequence () {
+      const sequence = [...this.requiredSequence]
+      function playUnit () {
+        this.wheelActive = false
+        const sector = sequence.shift()
+        if (this.gameMode.light) {
+          this.highlightedSector = sector
+        }
         if (this.gameMode.sound) {
-          this.playSound(number)
+          this.playSound(sector)
+        }
+        setTimeout(() => (this.highlightedSector = null), 200)
+        if (sequence.length > 0) {
+          setTimeout(playUnit.bind(this), this.difficulty.delay)
+        } else {
+          this.wheelActive = true
         }
       }
-      console.log(this.inputSequence)
+      playUnit.bind(this)()
     },
+
+    createCheckFunction () {
+      const sequence = [...this.requiredSequence]
+      return function check (number) {
+        const unit = sequence.shift()
+        if (unit !== number) {
+          this.loss()
+        } else if (sequence.length < 1) {
+          setTimeout(this.startRound, 500)
+        }
+      }
+    },
+
+    loss () {
+      this.lostRound = this.currentRound
+      this.gameRun = false
+    },
+
+    createRandomNumber: () => Math.floor(Math.random() * 4),
+
+    handleWheelClick (number) {
+      if (this.gameMode.sound) {
+        this.playSound(number)
+      }
+      if (this.wheelActive && this.gameRun) {
+        this.inputSequence.push(number)
+        this.checkFunction(number)
+      }
+    },
+
     playSound: (function () {
       const audios = [new Audio(), new Audio(), new Audio(), new Audio()]
       audios.forEach(
@@ -107,6 +166,10 @@ export default {
           (audio.src = require(`../assets/audio/${number + 1}.mp3`))
       )
       return function (number) {
+        if (audios[number].currentTime !== 0.0) {
+          audios[number].pause()
+          audios[number].currentTime = 0.0
+        }
         audios[number].play()
       }
     })()
@@ -120,12 +183,16 @@ export default {
   flex-direction: row
   align-items: center
   justify-content: center
+  flex-wrap: wrap
   .menu
-    margin-left: 50px
+    margin: 0 50px
     text-align: left
-
+    width: 150px
+    p
+      margin: 10px 0
     h2
       width: fit-content
+      margin: 10px 0
     button.start
       background-color: #6DABE8
       border: none
