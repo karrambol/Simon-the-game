@@ -79,6 +79,7 @@ export default {
     height: inherit
     width: inherit
     padding: 0
+    margin: 0
     list-style: none
     li
       position: absolute
