@@ -5,14 +5,17 @@
     v-on:mouseup="registerClick"
     v-on:mouseleave="handleLeave"
     v-bind:class="{ active: active }"
+    v-on:touch="registerClick, handleMouseover(index)"
   >
     <ul>
       <template v-for="(classObject, index) in liClassArray">
         <li
           v-bind:key="index"
           v-bind:class="classObject"
-          v-on:click="handleClick(index, $event)"
-          v-on:mouseover="handleMouseover(index, $event)"
+          v-on:click="handleClick(index)"
+          v-on:mouseover="handleMouseover(index)"
+          v-on:touchstart="handleMouseover(index)"
+          v-on:touchend="handleTouchEnd"
         ></li>
       </template>
     </ul>
@@ -45,13 +48,18 @@ export default {
     }
   },
   methods: {
-    handleClick (index, event) {
+    handleClick (index) {
       this.clickedSector = () => this.hoveredSector
     },
-    handleMouseover (index, event) {
+    handleMouseover (index) {
       this.hoveredSector = index
     },
-    handleLeave (index, event) {
+    handleTouchEnd () {
+      this.registerClick()
+      this.clickedSector = () => null
+      this.hoveredSector = null
+    },
+    handleLeave (index) {
       this.hoveredSector = null
     },
     registerClick () {
