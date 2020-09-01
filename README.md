@@ -1,6 +1,6 @@
 # simon-the-game
 
-Deployed on [GitHub Pages](https://github.com/karrambol/Simon-the-game-GHP)
+Deployed on [GitHub Pages](https://karrambol.github.io/Create-customer-form-GHP/)
 
 ## Project setup
 ```
