@@ -36,10 +36,11 @@ export default {
   },
   computed: {
     liClassArray () {
-      console.log('get', this.clickedSector)
       return [0, 1, 2, 3].map((el, i) => {
         return {
-          highlight: i === this.highlightedSector || i === this.clickedSector
+          highlight:
+            i === this.highlightedSector ||
+            (i === this.clickedSector && this.active)
         }
       })
     }
@@ -57,7 +58,6 @@ export default {
     registerClick () {
       this.$emit('click-registered', this.hoveredSector)
       this.clickedSector = -1
-      console.log('set', this.clickedSector)
     }
   }
 }
