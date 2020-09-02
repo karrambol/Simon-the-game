@@ -11,7 +11,6 @@
         <li
           v-bind:key="index"
           v-bind:class="classObject"
-          v-on:click="handleClick(index)"
           v-on:mouseover="handleMouseover(index)"
         ></li>
       </template>
@@ -31,32 +30,34 @@ export default {
   },
   data () {
     return {
-      clickedSector: () => null,
-      hoveredSector: null
+      clickedSector: -1,
+      hoveredSector: -1
     }
   },
   computed: {
     liClassArray () {
+      console.log('get', this.clickedSector)
       return [0, 1, 2, 3].map((el, i) => {
         return {
-          highlight: i === this.highlightedSector || i === this.clickedSector()
+          highlight: i === this.highlightedSector || i === this.clickedSector
         }
       })
     }
   },
   methods: {
     handleClick (index) {
-      this.clickedSector = () => this.hoveredSector
+      this.clickedSector = this.hoveredSector
     },
     handleMouseover (index) {
       this.hoveredSector = index
     },
     handleLeave (index) {
-      this.hoveredSector = null
+      this.hoveredSector = -1
     },
     registerClick () {
       this.$emit('click-registered', this.hoveredSector)
-      this.clickedSector = () => null
+      this.clickedSector = -1
+      console.log('set', this.clickedSector)
     }
   }
 }
