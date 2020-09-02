@@ -51,11 +51,6 @@ export default {
     handleMouseover (index) {
       this.hoveredSector = index
     },
-    handleTouchEnd () {
-      this.registerClick()
-      this.clickedSector = () => null
-      this.hoveredSector = null
-    },
     handleLeave (index) {
       this.hoveredSector = null
     },
