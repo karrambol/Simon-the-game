@@ -17,7 +17,6 @@
           <template v-for="(option, i) in modeOptions">
             <li v-bind:key="option.name">
               <input
-                v-bind:key="i"
                 type="radio"
                 name="mode"
                 v-bind:id="option.name"
@@ -33,7 +32,6 @@
           <template v-for="(option, i) in difficultyOptions">
             <li v-bind:key="option.name">
               <input
-                v-bind:key="i"
                 type="radio"
                 name="difficulty"
                 v-bind:id="option.name"
@@ -61,11 +59,10 @@ export default {
     return {
       lostRound: 0,
       currentRound: 0,
-      inputSequence: [],
       requiredSequence: [],
-      gameRun: true,
+      gameRun: false,
       wheelActive: true,
-      highlightedSector: null,
+      highlightedSector: -1,
       modeOptions: [
         { sound: true, light: true, name: 'Normal' },
         { sound: true, light: false, name: 'Sound only' },
@@ -104,8 +101,7 @@ export default {
     startRound () {
       this.currentRound++
       this.requiredSequence.push(this.createRandomNumber())
-      setTimeout(this.playSequence, 500)
-
+      this.playSequence()
       this.checkFunction = this.createCheckFunction()
     },
 
@@ -120,11 +116,13 @@ export default {
         if (this.gameMode.sound) {
           this.playSound(sector)
         }
-        setTimeout(() => (this.highlightedSector = null), 200)
+        setTimeout(() => (this.highlightedSector = -1), 200)
         if (sequence.length > 0) {
           setTimeout(playUnit.bind(this), this.difficulty.delay)
         } else {
-          this.wheelActive = true
+          setTimeout(() => {
+            this.wheelActive = true
+          }, 200)
         }
       }
       playUnit.bind(this)()
@@ -137,7 +135,7 @@ export default {
         if (unit !== number) {
           this.loss()
         } else if (sequence.length < 1) {
-          setTimeout(this.startRound, 500)
+          setTimeout(this.startRound, 750)
         }
       }
     },
@@ -150,11 +148,10 @@ export default {
     createRandomNumber: () => Math.floor(Math.random() * 4),
 
     handleWheelClick (number) {
-      if (this.gameMode.sound) {
+      if (this.wheelActive && this.gameMode.sound) {
         this.playSound(number)
       }
       if (this.wheelActive && this.gameRun) {
-        this.inputSequence.push(number)
         this.checkFunction(number)
       }
     },
