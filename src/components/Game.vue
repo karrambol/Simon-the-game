@@ -26,8 +26,8 @@
               <label v-bind:for="option.name"> {{ option.name }}</label>
             </li>
           </template>
-          <h2>Difficulty Level:</h2>
         </ul>
+        <h2>Difficulty:</h2>
         <ul>
           <template v-for="(option, i) in difficultyOptions">
             <li v-bind:key="option.name">
